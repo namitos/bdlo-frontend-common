@@ -1,23 +1,23 @@
 {
 	"name": "bdlo-frontend-common",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"private": false,
 	"dependencies": {
 		"es6-shim": "paulmillr/es6-shim",
 		"fetch": "github/fetch",
-		"revalidator": "flatiron/revalidator",
-		"vanilla-masker": "BankFacil/vanilla-masker",
-		"Model-client": "namitos/Model-client",
-		"namitos-fc": "namitos/fc",
 		"lodash": "4.x",
 		"moment": "2.x",
+		"revalidator": "flatiron/revalidator",
+		"flatiron-director": "flatiron/director",
+		"namitos-fc": "namitos/fc",
+		"Model-client": "namitos/Model-client",
+		"vanilla-masker": "BankFacil/vanilla-masker",
 		"socket.io-client": "Automattic/socket.io-client",
 		"polymer": "1.x",
 		"iron-elements": "PolymerElements/iron-elements",
 		"paper-elements": "PolymerElements/paper-elements",
 		"gold-elements": "PolymerElements/gold-elements",
 		"platinum-elements": "PolymerElements/platinum-elements",
-		"google-web-components": "GoogleWebComponents/google-web-components",
-		"flatiron-director": "flatiron/director"
+		"google-web-components": "GoogleWebComponents/google-web-components"
 	}
 }

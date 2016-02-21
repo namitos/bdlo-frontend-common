@@ -99,10 +99,10 @@
 								schemas[key] = new Schema(schemas[key]);
 								schemas[key].forEach(function (schemaPart) {
 									if (schemaPart.widget == 'base64File') {
-										schemaPart.type = 'any';//костыль, чтоб файловый инпут работал
+										schemaPart.type = 'any';//костыль для фронтенда, чтоб файловый инпут работал, а на бекенде хранило точно по схеме
 									}
-									if (schemaPart.widget1 == 'image') {
-										schemaPart.widget = 'image';
+									if (schemaPart.widget1 == 'base64Image') {//fixme костыль, который призван в некоторых случаях перебивать название виджета.
+										schemaPart.widget = 'base64Image';
 									}
 								});
 							});

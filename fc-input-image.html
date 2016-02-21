@@ -1,0 +1,61 @@
+<dom-module id="fc-input-image">
+	<style>
+		:host {
+			overflow: hidden;
+		}
+
+		:host:after {
+			display: block;
+			clear: both;
+			content: '';
+		}
+
+		img {
+			width: auto;
+			height: 100px;
+			float: left;
+		}
+	</style>
+	<template>
+
+		<template is="dom-if" if="[[value.0]]">
+			<template is="dom-if" if="[[isBase64File(value.0)]]">
+				<img src="[[value.0]]">
+			</template>
+			<template is="dom-if" if="[[!isBase64File(value.0)]]">
+				<img src="/[[value.0]]">
+			</template>
+		</template>
+
+
+		<template is="dom-if" if="[[!value.0]]">
+			<input type="file" on-change="getImage">
+		</template>
+
+	</template>
+	<script>
+		Polymer({
+			is: 'fc-input-image',
+			attached: function () {
+				this.value = this.value || [];
+			},
+			getImage: function (e) {
+				var view = this;
+				var input = e.target;
+				var reader = new FileReader();
+				reader.onload = function (a) {
+					view.set('value', [a.target.result]);
+					view.changeField();
+				};
+				reader.readAsDataURL(input.files[0]);
+			},
+			isBase64File: function (str) {
+				if (!str) {
+					return false;
+				}
+				var a = str.substr(0, 5);
+				return a.indexOf('data:') != -1;
+			}
+		})
+	</script>
+</dom-module>
