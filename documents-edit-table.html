@@ -58,14 +58,16 @@
 				});
 			},
 			deleteDialog: function (e) {
+				var view = this;
 				if (confirm('Вы уверены?')) {
 					e.model.item.delete().then(function () {
 						util.notify('Документ удалён');
+						view.splice('items', view.items.indexOf(e.model.item), 1);
 					}).catch(err);
 				}
 			},
 			getTitle: function (item) {//todo: потом надо будет сделать настраиваемый через схему заголовок таблицы
-				return item.name || item.fullname || item.fullName || item.title || item.text || item._id;
+				return item.name || item.shortname || item.shortName || item.short_name || item.fullname || item.fullName || item.full_name || item.title || item.text || item.value || item._id;
 			}
 		})
 	</script>
