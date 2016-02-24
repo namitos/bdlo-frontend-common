@@ -1,0 +1,72 @@
+<dom-module id="documents-edit-table">
+	<style include="main-styles">
+		:host {
+			position: relative;
+		}
+
+		paper-fab {
+			position: fixed;
+			right: 24px;
+			bottom: 24px;
+		}
+	</style>
+	<template>
+		<paper-fab icon="add" title="Добавить" on-click="addDialog"></paper-fab>
+		<table class="table">
+			<tr>
+				<th>Заголовок</th>
+				<th></th>
+			</tr>
+			<template is="dom-repeat" items="[[items]]">
+				<tr>
+					<td>[[getTitle(item)]]</td>
+					<td>
+						<paper-icon-button icon="editor:mode-edit" on-click="editDialog"></paper-icon-button>
+						<paper-icon-button icon="icons:delete" on-click="deleteDialog"></paper-icon-button>
+					</td>
+				</tr>
+			</template>
+		</table>
+	</template>
+	<script>
+		Polymer({
+			is: 'documents-edit-table',
+			attached: function () {
+				var view = this;
+				this.model = typeof this.model == 'string' ? eval(this.model) : this.model;
+				this.model.read().then(function (items) {
+					view.items = items;
+				}).catch(err);
+			},
+			addDialog: function () {
+				var view = this;
+				var item = new this.model({});
+				util.modalForm('Добавление документа', this.model.schema, item, function () {
+					item.save().then(function (item) {
+						view.push('items', item);
+						util.notify('Документ добавлен');
+					}).catch(err);
+				});
+			},
+			editDialog: function (e) {
+				var view = this;
+				var item = e.model.item;
+				util.modalForm('Добавление документа', this.model.schema, item, function () {
+					item.save().then(function (item) {
+						util.notify('Документ сохранён');
+					}).catch(err);
+				});
+			},
+			deleteDialog: function (e) {
+				if (confirm('Вы уверены?')) {
+					e.model.item.delete().then(function () {
+						util.notify('Документ удалён');
+					}).catch(err);
+				}
+			},
+			getTitle: function (item) {//todo: потом надо будет сделать настраиваемый через схему заголовок таблицы
+				return item.name || item.fullname || item.fullName || item.title || item.text || item._id;
+			}
+		})
+	</script>
+</dom-module>
