@@ -1,0 +1,60 @@
+<dom-module id='ui-dialog'>
+	<style>
+		iron-icon {
+			margin: 0;
+			padding: 0;
+			position: absolute;
+			top: 16px;
+			right: 16px;
+		}
+
+		paper-dialog {
+			overflow-y: auto;
+			width: 600px;
+			top: 0;
+		}
+
+		h2 {
+			white-space: normal;
+		}
+
+		@media (max-width: 640px) {
+			paper-dialog {
+				margin: 16px;
+			}
+		}
+	</style>
+	<template>
+		<paper-dialog id="dialog" with-backdrop on-keyup="key" tabindex="1">
+			<h2>[[name]]</h2>
+			<iron-icon icon="close" on-click="close"></iron-icon>
+			<content></content>
+		</paper-dialog>
+	</template>
+	<script>
+		Polymer({
+			is: 'ui-dialog',
+			removeAfterHide: true,
+			close: function () {
+				var view = this;
+				this.$.dialog.close();
+				if (this.removeAfterHide) {
+					setTimeout(function () {
+						view.remove();
+					}, 1000);
+				}
+			},
+			open: function () {
+				this.$.dialog.open();
+			},
+			key: function (e) {
+				console.log(e);
+				if (e.code == 'Backspace') {
+					this.close();
+					e.preventDefault();
+					return false;
+				}
+			}
+		});
+	</script>
+</dom-module>

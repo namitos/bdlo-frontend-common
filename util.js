@@ -51,7 +51,7 @@
 					return str.toString().replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ');
 				},
 				phone: function (str) {
-					return str.replace(/(\d{1})(\d{3})(\d{3})(\d{2})(\d{2})/, "+$1 ($2) $3-$4-$5");
+					return str.replace('+', '').replace(/(\d{1})(\d{3})(\d{3})(\d{2})(\d{2})/, "+$1 ($2) $3-$4-$5");
 				},
 				phoneLink: function (str) {
 					return 'tel:' + str;
@@ -122,11 +122,7 @@
 			])
 		},
 		modalForm: function (name, schema, obj, cb, cbChange, saveCaption) {
-			var el = util.dom.el('paper-dialog', {
-				attributes: {
-					'with-backdrop': true
-				}
-			}, [
+			var el = util.dom.el('ui-dialog', {}, [
 				util.dom.el('h2', {}, name),
 				util.dom.form(schema, obj, function () {
 					cb();
