@@ -121,7 +121,7 @@
 				})
 			])
 		},
-		modalForm: function (name, schema, obj, cb) {
+		modalForm: function (name, schema, obj, cb, cbChange, saveCaption) {
 			var el = util.dom.el('paper-dialog', {
 				attributes: {
 					'with-backdrop': true
@@ -131,7 +131,7 @@
 				util.dom.form(schema, obj, function () {
 					cb();
 					el.close();
-				})
+				}, cbChange, saveCaption)
 			]);
 			document.body.appendChild(el);
 			el.open();
