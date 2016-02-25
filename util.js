@@ -122,13 +122,12 @@
 			])
 		},
 		modalForm: function (name, schema, obj, cb, cbChange, saveCaption) {
-			var el = util.dom.el('ui-dialog', {}, [
-				util.dom.el('h2', {}, name),
-				util.dom.form(schema, obj, function () {
-					cb();
-					el.close();
-				}, cbChange, saveCaption)
-			]);
+			var el = util.dom.el('ui-dialog', {
+				name: name
+			}, util.dom.form(schema, obj, function () {
+				cb();
+				el.close();
+			}, cbChange, saveCaption));
 			document.body.appendChild(el);
 			el.open();
 			return el;
