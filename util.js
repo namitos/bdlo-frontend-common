@@ -181,8 +181,6 @@
 							}
 						} else {
 							//второй уровень валидации для тех, кто не поддерживает html5 validation, и для conform
-							var errors = [util.dom.el('div', {}, 'Ошибки в заполнении формы')];
-
 							//todo потом вынести в методы класса схемы
 							var validationToText = function (error) {
 								var attrs = {
@@ -199,14 +197,20 @@
 								}
 							};
 
+							if (schema instanceof Schema) {
+							} else {
+								schema = new Schema(schema);
+							}
+							var errors = [];
 							validation.errors.forEach(function (error) {
 								try {
-									errors.push(util.dom.el('div', {}, schema.getField(error.property, 'label') + ' ' + validationToText(error)));
+									errors.push(schema.getField(error.property, 'label') + ' ' + validationToText(error) + '\n');
 								} catch (err) {
 									console.error(err, error);
 								}
 							});
-							util.notify(errors);
+							console.log(errors);
+							util.notify(errors.join('; '));
 						}
 					} catch (err) {
 						console.log(err);
