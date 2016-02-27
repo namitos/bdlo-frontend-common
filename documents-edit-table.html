@@ -75,7 +75,7 @@
 				} else if (confirm('Удалить документ? Это действие нельзя будет отменить.')) {
 					item.delete().then(function () {
 						util.notify('Документ удалён');
-						view.set('items', view.items.indexOf(item), 1);
+						view.splice('items', view.items.indexOf(item), 1);
 					}).catch(err);
 				}
 			},
