@@ -66,9 +66,9 @@
 				}
 			});
 			el.appendChild(input);
-			input.value = obj ? moment(obj).format("YYYY-MM-DDTHH-mm") : '';
+			input.value = obj ? moment(obj).format("YYYY-MM-DDTHH:mm") : '';
 			input.convertValue = function (value) {
-				return value ? moment(value, "YYYY-MM-DDTHH-mm").toDate().valueOf() : 0;
+				return value ? moment(value, "YYYY-MM-DDTHH:mm").toDate().valueOf() : 0;
 			};
 			return {
 				wrapper: el,
