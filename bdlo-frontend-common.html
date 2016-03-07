@@ -46,7 +46,6 @@
 	};
 
 	fc.widgets.base64Image = function (obj, schema) {
-		console.log('base64Image construct!');
 		var el = util.dom.el('div');
 		var input = util.dom.el('fc-input-image', {
 			value: obj
@@ -57,4 +56,26 @@
 			input: input
 		}
 	};
+
+	fc.widgets.unixDateTime = function (obj, schema) {
+		if (window.moment) {
+			var el = util.dom.el('div');
+			var input = util.dom.el('input', {
+				attributes: {
+					type: 'datetime-local'
+				}
+			});
+			el.appendChild(input);
+			input.value = obj ? moment(obj).format("YYYY-MM-DDTHH-mm") : '';
+			input.convertValue = function (value) {
+				return value ? moment(value, "YYYY-MM-DDTHH-mm").toDate().valueOf() : 0;
+			};
+			return {
+				wrapper: el,
+				input: input
+			}
+		} else {
+			console.error('unixDateTime widget requires momentjs');
+		}
+	}
 </script>
