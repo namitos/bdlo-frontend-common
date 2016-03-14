@@ -83,12 +83,8 @@
 			}, 100);
 		},
 		init: function () {
+			window.socket = io();
 			return Promise.all([
-				new Promise(function (resolve, reject) {
-					document.addEventListener('WebComponentsReady', function () {
-						resolve();
-					});
-				}),
 				new Promise(function (resolve, reject) {
 					socket.emit('data:schemas', {}, function (result) {
 						try {
