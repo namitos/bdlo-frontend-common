@@ -32,7 +32,7 @@
 					attributes: {
 						value: item._id
 					}
-				}, item.name || item.title || item.text);
+				}, item.name || item.shortname || item.shortName || item.short_name || item.fullname || item.fullName || item.full_name || item.title || item.text || item.value || item._id);
 				if (item._id == obj) {
 					el.setAttribute('selected', true);
 				}
