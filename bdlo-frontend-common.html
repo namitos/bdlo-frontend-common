@@ -26,13 +26,15 @@
 		var input = util.dom.el('select', {}, util.dom.el('option'));
 		var StructureClass = eval(schema.model);
 		StructureClass.read().then(function (items) {
-			console.log(items);
+			if (schema.filter instanceof Function) {
+				items = items.filter(schema.filter);
+			}
 			items.forEach(function (item) {
 				var el = util.dom.el('option', {
 					attributes: {
 						value: item._id
 					}
-				}, item.name || item.shortname || item.shortName || item.short_name || item.fullname || item.fullName || item.full_name || item.title || item.text || item.value || item._id);
+				}, item.name || item.shortname || item.shortName || item.short_name || item.fullname || item.fullName || item.full_name || item.title || item.text || item.value || item.alias || item._id);
 				if (item._id == obj) {
 					el.setAttribute('selected', true);
 				}
