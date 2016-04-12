@@ -1,6 +1,6 @@
 {
 	"name": "bdlo-frontend-common",
-	"version": "0.0.17",
+	"version": "0.0.18",
 	"private": false,
 	"dependencies": {
 		"es6-shim": "paulmillr/es6-shim",
