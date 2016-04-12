@@ -29,6 +29,9 @@
 			if (schema.filter instanceof Function) {
 				items = items.filter(schema.filter);
 			}
+			if (schema.sort instanceof Function) {
+				items = items.sort(schema.sort);
+			}
 			items.forEach(function (item) {
 				var el = util.dom.el('option', {
 					attributes: {
