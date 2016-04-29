@@ -1,0 +1,22 @@
+<script>
+	UtilBehavior = {
+		_eq: function (a, b) {
+			return a == b;
+		},
+		_neq: function (a, b) {
+			return a != b;
+		},
+		_or: function (a, b, c) {
+			return a || b || c;
+		},
+		_strFormat: function (str, format) {
+			return util.strFormat(str, format);
+		},
+		_permission: function (str) {
+			return user.permission(str);
+		},
+		_toBoolean: function (val) {
+			return !!val;
+		}
+	}
+</script>
