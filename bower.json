@@ -1,6 +1,6 @@
 {
 	"name": "bdlo-frontend-common",
-	"version": "0.0.19",
+	"version": "0.0.20",
 	"private": false,
 	"dependencies": {
 		"es6-shim": "paulmillr/es6-shim",
@@ -12,7 +12,7 @@
 		"namitos-fc": "namitos/fc",
 		"Model-client": "namitos/Model-client",
 		"vanilla-masker": "BankFacil/vanilla-masker",
-		"socket.io-client": "Automattic/socket.io-client",
+		"socket.io-client": "socketio/socket.io-client",
 		"polymer": "1.x",
 		"iron-elements": "PolymerElements/iron-elements",
 		"paper-elements": "PolymerElements/paper-elements",
