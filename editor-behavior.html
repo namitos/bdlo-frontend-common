@@ -1,0 +1,57 @@
+<script>
+	EditorBehavior = {
+		_attached: function () {
+			var view = this;
+			this.model = typeof this.model == 'string' ? eval(this.model) : this.model;
+			this.model.read().then(function (items) {
+				view.items = items;
+			}).catch(err);
+		},
+		addDialog: function () {
+			var view = this;
+			var item = new this.model({});
+			util.modalForm('Добавление документа', this.model.schema, item, function () {
+				item.save().then(function (item) {
+					view.push('items', item);
+					util.notify('Документ добавлен');
+				}).catch(err);
+			});
+		},
+		editDialog: function (e) {
+			var view = this;
+			var item = e.model.item;
+			util.modalForm('Редактирование документа', this.model.schema, item, function () {
+				item.save().then(function (item) {
+					util.notify('Документ сохранён');
+				}).catch(err);
+			});
+		},
+		deleteDialog: function (e) {
+			var view = this;
+			var item = e.model.item;
+			if (view.model.schema.safeDelete) {
+				item.delete().then(function () {
+					util.notify('Документ архивирован');
+					view.set(['items', view.items.indexOf(item), 'deleted'], true);
+				}).catch(err);
+			} else if (confirm('Удалить документ? Это действие нельзя будет отменить.')) {
+				item.delete().then(function () {
+					util.notify('Документ удалён');
+					view.splice('items', view.items.indexOf(item), 1);
+				}).catch(err);
+			}
+		},
+		undoDialog: function (e) {
+			var view = this;
+			var item = e.model.item;
+			item.deleted = false;
+			item.save().then(function () {
+				util.notify('Документ восстановлен');
+				view.set(['items', view.items.indexOf(item), 'deleted'], false);
+			}).catch(err)
+		},
+		getTitle: function (item) {//todo: потом надо будет сделать настраиваемый через схему заголовок таблицы
+			return item.name || item.shortname || item.shortName || item.short_name || item.fullname || item.fullName || item.full_name || item.title || item.text || item.value || item._id;
+		}
+	}
+</script>
