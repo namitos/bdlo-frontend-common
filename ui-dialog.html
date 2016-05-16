@@ -7,6 +7,7 @@
 			top: 8px;
 			right: 8px;
 			z-index: 1;
+			cursor: pointer;
 		}
 
 		paper-dialog {
@@ -28,7 +29,7 @@
 	<template>
 		<paper-dialog id="dialog" with-backdrop no-cancel-on-outside-click>
 			<h2>[[name]]</h2>
-			<iron-icon icon="close" on-click="close"></iron-icon>
+			<iron-icon icon="close" dialog-dismiss></iron-icon>
 			<paper-dialog-scrollable>
 				<content></content>
 			</paper-dialog-scrollable>
@@ -37,11 +38,27 @@
 	<script>
 		Polymer({
 			is: 'ui-dialog',
+			properties: {
+				removeAfterHide: {
+					type: Boolean,
+					value: true
+				}
+			},
 			close: function () {
 				this.$.dialog.close();
+				if (this.removeAfterHide) {
+					this.parentNode.removeChild(this);
+					//this.remove();
+				}
 			},
 			open: function () {
 				this.$.dialog.open();
+			},
+			attached: function () {
+				var view = this;
+				this.$.dialog.addEventListener('iron-overlay-closed', function (e) {
+					view.close();
+				});
 			}
 		});
 	</script>
