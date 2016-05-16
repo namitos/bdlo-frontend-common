@@ -9,7 +9,7 @@
 		},
 		addDialog: function () {
 			var view = this;
-			var item = new this.model({});
+			var item = new this.model(this.newItemFn instanceof Function ? this.newItemFn() : {});
 			util.modalForm('Добавление документа', this.model.schema, item, function () {
 				item.save().then(function (item) {
 					view.push('items', item);
