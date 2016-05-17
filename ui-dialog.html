@@ -46,7 +46,7 @@
 			},
 			close: function () {
 				this.$.dialog.close();
-				if (this.removeAfterHide) {
+				if (this.removeAfterHide && this.parentNode) {
 					this.parentNode.removeChild(this);
 					//this.remove();
 				}
