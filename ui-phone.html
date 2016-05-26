@@ -1,0 +1,24 @@
+<dom-module id="ui-phone">
+	<style>
+		span, a {
+			color: var(--ui-phone-color);
+		}
+	</style>
+	<template>
+		<template is="dom-if" if="[[p2c]]">
+			<span>[[_strFormat(phone, 'phone')]]</span>
+		</template>
+		<template is="dom-if" if="[[!p2c]]">
+			<a href="[[_strFormat(phone, 'phoneLink')]]">[[_strFormat(phone, 'phone')]]</a>
+		</template>
+	</template>
+	<script>
+		Polymer({
+			is: 'ui-phone',
+			behaviors: [UtilBehavior],
+			attached: function () {
+				this.p2c = !!localStorage.p2c;
+			}
+		})
+	</script>
+</dom-module>

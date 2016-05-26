@@ -1,6 +1,6 @@
 {
 	"name": "bdlo-frontend-common",
-	"version": "0.0.25",
+	"version": "0.0.26",
 	"private": false,
 	"dependencies": {
 		"es6-shim": "paulmillr/es6-shim",
@@ -8,10 +8,8 @@
 		"lodash": "4.x",
 		"moment": "2.x",
 		"revalidator": "flatiron/revalidator",
-		"flatiron-director": "flatiron/director",
 		"namitos-fc": "namitos/fc",
 		"Model-client": "namitos/Model-client",
-		"vanilla-masker": "BankFacil/vanilla-masker",
 		"socket.io-client": "socketio/socket.io-client",
 		"polymer": "1.x",
 		"iron-elements": "PolymerElements/iron-elements",
