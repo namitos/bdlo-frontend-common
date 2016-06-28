@@ -13,14 +13,29 @@
 	</style>
 	<template>
 		<paper-fab icon="add" title="Добавить" on-click="addDialog"></paper-fab>
+		<ui-pager page="{{page}}"></ui-pager>
 		<table class="table">
 			<tr>
-				<th>Заголовок</th>
+				<template is="dom-if" if="[[header.length]]">
+					<template is="dom-repeat" items="[[header]]" as="headerItem">
+						<th>[[_header(headerItem)]]</th>
+					</template>
+				</template>
+				<template is="dom-if" if="[[!header.length]]">
+					<th>Заголовок</th>
+				</template>
 				<th></th>
 			</tr>
 			<template is="dom-repeat" items="[[items]]">
 				<tr>
-					<td>[[getTitle(item)]]</td>
+					<template is="dom-if" if="[[header.length]]">
+						<template is="dom-repeat" items="[[header]]" as="headerItem">
+							<td>[[_field(item, headerItem)]]</td>
+						</template>
+					</template>
+					<template is="dom-if" if="[[!header.length]]">
+						<td>[[_fieldTitle(item)]]</td>
+					</template>
 					<td>
 						<paper-icon-button icon="editor:mode-edit" on-click="editDialog"></paper-icon-button>
 						<template is="dom-if" if="[[item.deleted]]">
@@ -35,14 +50,12 @@
 				</tr>
 			</template>
 		</table>
+		<ui-pager page="{{page}}"></ui-pager>
 	</template>
 	<script>
 		Polymer({
 			is: 'documents-edit-table',
-			behaviors: [EditorBehavior],
-			attached: function () {
-				this._attached();
-			}
+			behaviors: [EditTableBehavior]
 		})
 	</script>
 </dom-module>

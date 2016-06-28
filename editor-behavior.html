@@ -1,12 +1,5 @@
 <script>
 	EditorBehavior = {
-		_attached: function () {
-			var view = this;
-			this.model = typeof this.model == 'string' ? eval(this.model) : this.model;
-			this.model.read().then(function (items) {
-				view.items = items;
-			}).catch(err);
-		},
 		addDialog: function () {
 			var view = this;
 			var item = new this.model(this.newItemFn instanceof Function ? this.newItemFn() : {});
@@ -17,14 +10,24 @@
 				}).catch(err);
 			});
 		},
+		/**
+		 * if table header exists (and document loaded partially) this dialog loads full document before show form
+		 * @param e
+		 */
 		editDialog: function (e) {
 			var view = this;
 			var item = e.model.item;
-			util.modalForm('Редактирование документа', this.model.schema, item, function () {
-				item.save().then(function (item) {
-					util.notify('Документ сохранён');
-				}).catch(err);
-			});
+			(view.header.length ? view.model.read({
+				_id: item._id
+			}).then(function (loaded) {
+				return loaded[0]
+			}) : Promise.resolve(item)).then(function (item) {
+				util.modalForm('Редактирование документа', view.model.schema, item, function () {
+					item.save().then(function (item) {
+						util.notify('Документ сохранён');
+					}).catch(err);
+				});
+			}).catch(err);
 		},
 		deleteDialog: function (e) {
 			var view = this;
@@ -49,9 +52,66 @@
 				util.notify('Документ восстановлен');
 				view.set(['items', view.items.indexOf(item), 'deleted'], false);
 			}).catch(err)
+		}
+	};
+
+	EditTableBehaviorImpl = {
+		properties: {
+			header: {
+				type: Array,
+				value: []
+			},
+			page: {
+				type: Number,
+				value: 0
+			},
+			limit: {
+				type: Number,
+				value: 30
+			},
+			form: {
+				type: Object,
+				value: {}
+			}
 		},
-		getTitle: function (item) {//todo: потом надо будет сделать настраиваемый через схему заголовок таблицы
+		observers: [
+			'_search(page, form.*)'
+		],
+		attached: function () {
+			this.model = typeof this.model == 'string' ? eval(this.model) : this.model;
+		},
+		_search: function () {
+			var view = this;
+			this.async(function () {
+				var form = _.cloneDeep(view.form);
+				var fields = {};
+				if (this.header.length) {
+					this.header.forEach(function (field) {
+						fields[field] = true;
+					});
+				}
+				view.model.read(form, {
+					skip: view.page * view.limit,
+					limit: view.limit,
+					fields: fields
+				}).then(function (items) {
+					view.items = items;
+				}).catch(err)
+			});
+		},
+		_header: function (field) {
+			return this.model.schema.getField(field).label;
+		},
+		_field: function (item, field) {
+			return item.get(field);
+		},
+		_fieldTitle: function (item) {
 			return item.name || item.shortname || item.shortName || item.short_name || item.fullname || item.fullName || item.full_name || item.title || item.text || item.value || item._id;
 		}
-	}
+	};
+
+	EditTableBehavior = [
+		EditorBehavior,
+		EditTableBehaviorImpl
+	];
 </script>
