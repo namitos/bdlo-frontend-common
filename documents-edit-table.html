@@ -10,8 +10,24 @@
 			bottom: 24px;
 			z-index: 1;
 		}
+
+		.filter-form {
+			margin: 0 0 16px 0;
+		}
+
+		.filter-form paper-input {
+			display: inline-block;
+			max-width: 200px;
+			margin: 0 16px 0 0;
+		}
 	</style>
 	<template>
+		<div class="filter-form">
+			<template is="dom-repeat" items="[[filters]]">
+				<paper-input name="[[item]]" label="[[_filterName(item)]]" on-input="filterChange"></paper-input>
+			</template>
+		</div>
+
 		<paper-fab icon="add" title="Добавить" on-click="addDialog"></paper-fab>
 		<ui-pager page="{{page}}"></ui-pager>
 		<table class="table">
