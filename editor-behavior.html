@@ -17,7 +17,7 @@
 		editDialog: function (e) {
 			var view = this;
 			var item = e.model.item;
-			(view.header.length ? view.model.read({
+			(view.header && view.header.length ? view.model.read({
 				_id: item._id
 			}).then(function (loaded) {
 				return loaded[0]
