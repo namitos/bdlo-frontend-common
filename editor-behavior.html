@@ -17,7 +17,7 @@
 		editDialog: function (e) {
 			var view = this;
 			var item = e.model.item;
-			(view.header && view.header.length ? view.model.read({
+			(view.header.length ? view.model.read({
 				_id: item._id
 			}).then(function (loaded) {
 				return loaded[0]
@@ -79,6 +79,27 @@
 		],
 		attached: function () {
 			this.model = typeof this.model == 'string' ? eval(this.model) : this.model;
+		},
+		filterChange: function (e) {
+			var name = e.target.name;
+			var schema = this.model.schema.getField(name);
+			var value = e.target.value;
+			if (value) {
+				if (schema.type == 'string') {
+					value = {
+						$regex: value,
+						$options: 'i'
+					};
+				} else if (schema.type == 'number' || schema.type == 'integer') {
+					value = parseFloat(value);
+				}
+				this.set(['form', name].join('.'), value);
+			} else {
+				this.set(['form', name].join('.'));
+			}
+		},
+		_filterName: function (name) {
+			return this.model.schema.getField(name).label;
 		},
 		_search: function () {
 			var view = this;
