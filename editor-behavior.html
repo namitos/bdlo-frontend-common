@@ -61,6 +61,10 @@
 				type: Array,
 				value: []
 			},
+			filters: {
+				type: Array,
+				value: []
+			},
 			page: {
 				type: Number,
 				value: 0
@@ -80,10 +84,10 @@
 		attached: function () {
 			this.model = typeof this.model == 'string' ? eval(this.model) : this.model;
 			if (this.model.schema.table) {
-				if (!this.header && this.model.schema.table.header) {
+				if (!this.header.length && this.model.schema.table.header) {
 					this.header = this.model.schema.table.header;
 				}
-				if (!this.filters && this.model.schema.table.filters) {
+				if (!this.filters.length && this.model.schema.table.filters) {
 					this.filters = this.model.schema.table.filters;
 				}
 			}
