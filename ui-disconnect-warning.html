@@ -36,26 +36,34 @@
 		Polymer({
 			is: 'ui-disconnect-warning',
 			properties: {
-				reload: Number,
-				disconnectWarning: Boolean
+				reload: {
+					type: Boolean,
+					value: false
+				},
+				disconnectWarning: {
+					type: Boolean,
+					value: false
+				}
 			},
 			attached: function () {
 				var view = this;
-				view.disconnectWarning = false;
-				socket.on('connect', function () {
-					view.disconnectWarning = window.disconnectWarning = false;
-					if (view.reload) {
-						clearTimeout(view.reloadTimer);
-					}
-				});
-				socket.on('disconnect', function () {
-					view.disconnectWarning = window.disconnectWarning = true;
-					if (view.reload) {
-						view.reloadTimer = setTimeout(function () {
-							window.location.reload();
-						}, view.reload);
-					}
-				});
+				setTimeout(function () {
+					view.disconnectWarning = window.disconnectWarning = !socket.connected;
+					socket.on('connect', function () {
+						view.disconnectWarning = window.disconnectWarning = false;
+						if (view.reload) {
+							clearTimeout(view.reloadTimer);
+						}
+					});
+					socket.on('disconnect', function () {
+						view.disconnectWarning = window.disconnectWarning = true;
+						if (view.reload) {
+							view.reloadTimer = setTimeout(function () {
+								window.location.reload();
+							}, view.reload);
+						}
+					});
+				}, 2000);
 			}
 		})
 	</script>
