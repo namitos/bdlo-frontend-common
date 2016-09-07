@@ -157,8 +157,13 @@
 			form: function (schema, obj, cb, cbChange, saveCaption) {
 				var fields = fc(schema, obj);
 				fields.appendChild(util.dom.el('button', {
-					type: 'submit'
-				}, saveCaption || 'Сохранить'));
+					type: 'submit',
+					attributes: {
+						nostyle: true
+					}
+				}, util.dom.el('paper-button', {
+					raised: true
+				}, saveCaption || 'Сохранить')));
 				var form = util.dom.el('form', {}, fields);
 				if (cbChange) {
 					fields.addEventListener('changeObj', cbChange);
