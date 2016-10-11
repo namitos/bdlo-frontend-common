@@ -25,9 +25,6 @@
 		<template is="dom-if" if="[[loading]]">
 			<paper-progress max="[[total]]" value="[[loaded]]"></paper-progress>
 		</template>
-		<template is="dom-if" if="[[error]]">
-			<div>[[error]]</div>
-		</template>
 		<template is="dom-if" if="[[!loading]]">
 			<template is="dom-if" if="[[value.0]]">
 				<template is="dom-if" if="[[_isBase64File(value.0)]]">
@@ -41,7 +38,9 @@
 				<input type="file" on-change="getImage">
 			</template>
 		</template>
-
+		<template is="dom-if" if="[[error]]">
+			<div>[[error]]</div>
+		</template>
 	</template>
 	<script>
 		Polymer({
@@ -66,6 +65,7 @@
 			},
 			getImage: function (e) {
 				this.loading = true;
+				this.error = '';
 				var view = this;
 				var input = e.target;
 				var reader = new FileReader();
@@ -79,7 +79,17 @@
 					view.loaded = a.loaded;
 				};
 				reader.onerror = function (a) {
-					view.error = a.toString();
+					var code = a.target.error.code;
+					if (code == a.target.error.NOT_FOUND_ERR) {
+						view.error = "Файл не найден";
+					} else if (code == a.target.error.NOT_READABLE_ERR) {
+						view.error = "Ошибка чтения файла";
+					} else if (code == a.target.error.ABORT_ERR) {
+
+					} else {
+						view.error = "Произошла ошибка";
+					}
+					view.loading = false;
 				};
 				reader.readAsDataURL(input.files[0]);
 			},
