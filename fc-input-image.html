@@ -23,7 +23,10 @@
 			}
 		</style>
 		<template is="dom-if" if="[[loading]]">
-			<paper-progress indeterminate max="[[total]]" value="[[loaded]]"></paper-progress>
+			<paper-progress max="[[total]]" value="[[loaded]]"></paper-progress>
+		</template>
+		<template is="dom-if" if="[[error]]">
+			<div>[[error]]</div>
 		</template>
 		<template is="dom-if" if="[[!loading]]">
 			<template is="dom-if" if="[[value.0]]">
@@ -74,6 +77,9 @@
 				reader.onprogress = function (a) {
 					view.total = a.total;
 					view.loaded = a.loaded;
+				};
+				reader.onerror = function (a) {
+					view.error = a.toString();
 				};
 				reader.readAsDataURL(input.files[0]);
 			},
