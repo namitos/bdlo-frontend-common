@@ -1,55 +1,83 @@
 <dom-module id="fc-input-image">
-	<style>
-		:host {
-			overflow: hidden;
-		}
-
-		:host:after {
-			display: block;
-			clear: both;
-			content: '';
-		}
-
-		img {
-			width: auto;
-			height: 100px;
-			float: left;
-		}
-	</style>
 	<template>
+		<style>
+			:host {
+				overflow: hidden;
+				min-height: 25px;
+			}
 
-		<template is="dom-if" if="[[value.0]]">
-			<template is="dom-if" if="[[isBase64File(value.0)]]">
-				<img src="[[value.0]]">
-			</template>
-			<template is="dom-if" if="[[!isBase64File(value.0)]]">
-				<img src="/[[value.0]]">
-			</template>
+			:host:after {
+				display: block;
+				clear: both;
+				content: '';
+			}
+
+			img {
+				width: auto;
+				height: 100px;
+				float: left;
+			}
+
+			paper-progress {
+				width: 100%;
+			}
+		</style>
+		<template is="dom-if" if="[[loading]]">
+			<paper-progress indeterminate max="[[total]]" value="[[loaded]]"></paper-progress>
 		</template>
-
-
-		<template is="dom-if" if="[[!value.0]]">
-			<input type="file" on-change="getImage">
+		<template is="dom-if" if="[[!loading]]">
+			<template is="dom-if" if="[[value.0]]">
+				<template is="dom-if" if="[[_isBase64File(value.0)]]">
+					<img src="[[value.0]]">
+				</template>
+				<template is="dom-if" if="[[!_isBase64File(value.0)]]">
+					<img src="/[[value.0]]">
+				</template>
+			</template>
+			<template is="dom-if" if="[[!value.0]]">
+				<input type="file" on-change="getImage">
+			</template>
 		</template>
 
 	</template>
 	<script>
 		Polymer({
 			is: 'fc-input-image',
-			attached: function () {
-				this.value = this.value || [];
+			properties: {
+				loading: {
+					type: Boolean,
+					value: false
+				},
+				value: {
+					type: Array,
+					value: function () {
+						return []
+					}
+				},
+				loaded: {
+					type: Number
+				},
+				total: {
+					type: Number
+				}
 			},
 			getImage: function (e) {
+				this.loading = true;
 				var view = this;
 				var input = e.target;
 				var reader = new FileReader();
 				reader.onload = function (a) {
 					view.set('value', [a.target.result]);
 					view.changeField();
+					view.loading = false;
+				};
+				reader.onprogress = function (a) {
+					view.total = a.total;
+					view.loaded = a.loaded;
 				};
 				reader.readAsDataURL(input.files[0]);
 			},
-			isBase64File: function (str) {
+			_isBase64File: function (str) {
 				if (!str) {
 					return false;
 				}
