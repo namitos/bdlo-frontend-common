@@ -1,22 +1,33 @@
+<link rel="import" href="../iron-icon/iron-icon.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
+<link rel="import" href="../paper-dialog/paper-dialog.html">
+<link rel="import" href="../paper-dialog-scrollable/paper-dialog-scrollable.html">
+<link rel="import" href="../app-layout/app-toolbar/app-toolbar.html">
+
 <dom-module id='ui-dialog'>
 	<style>
-		iron-icon {
-			margin: 0;
-			padding: 0;
-			position: absolute;
-			top: 8px;
-			right: 8px;
-			z-index: 1;
-			cursor: pointer;
-		}
-
 		paper-dialog {
-			width: 600px;
+			width: 640px;
 			top: 0 !important;
 		}
 
-		h2 {
-			white-space: normal;
+		app-toolbar,
+		paper-dialog-scrollable {
+			margin: 0 !important;
+		}
+
+		app-toolbar {
+			@apply(--ui-dialog-app-toolbar);
+		}
+
+		paper-dialog-scrollable {
+			--paper-dialog-scrollable: {
+				padding: 0 16px;
+			}
+		}
+
+		[dialog-dismiss] {
+			cursor: pointer;
 		}
 
 		@media (max-width: 640px) {
@@ -28,8 +39,13 @@
 	</style>
 	<template>
 		<paper-dialog id="dialog" with-backdrop no-cancel-on-outside-click>
-			<h2>[[name]]</h2>
-			<iron-icon icon="close" dialog-dismiss></iron-icon>
+			<app-toolbar>
+				<template is="dom-if" if="[[icon]]">
+					<iron-icon icon="[[icon]]" dialog-dismiss></iron-icon>
+				</template>
+				<div main-title>[[name]]</div>
+				<iron-icon icon="close" dialog-dismiss></iron-icon>
+			</app-toolbar>
 			<paper-dialog-scrollable>
 				<content></content>
 			</paper-dialog-scrollable>
@@ -39,6 +55,9 @@
 		Polymer({
 			is: 'ui-dialog',
 			properties: {
+				icon: {
+					type: String
+				},
 				removeAfterHide: {
 					type: Boolean,
 					value: true
