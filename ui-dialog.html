@@ -22,8 +22,12 @@
 
 		paper-dialog-scrollable {
 			--paper-dialog-scrollable: {
-				padding: 0 16px;
+				padding: 16px;
 			}
+		}
+
+		.icon {
+			margin-right: 8px;
 		}
 
 		[dialog-dismiss] {
@@ -41,7 +45,7 @@
 		<paper-dialog id="dialog" with-backdrop no-cancel-on-outside-click>
 			<app-toolbar>
 				<template is="dom-if" if="[[icon]]">
-					<iron-icon icon="[[icon]]" dialog-dismiss></iron-icon>
+					<iron-icon icon="[[icon]]" class="icon"></iron-icon>
 				</template>
 				<div main-title>[[name]]</div>
 				<iron-icon icon="close" dialog-dismiss></iron-icon>
