@@ -10,3 +10,69 @@
 <script src="../socket.io-client/socket.io.js"></script>
 
 <script src="util.js"></script>
+<script>
+	fc.widgets.selectCollection = function (obj, schema) {
+		var el = util.dom.el('div');
+		var input = util.dom.el('select', {}, util.dom.el('option'));
+		var StructureClass = eval(schema.model);
+		StructureClass.read().then(function (items) {
+			if (schema.filter instanceof Function) {
+				items = items.filter(schema.filter);
+			}
+			if (schema.sort instanceof Function) {
+				items = items.sort(schema.sort);
+			}
+			items.forEach(function (item) {
+				var str = item.name || item.shortname || item.shortName || item.short_name || item.fullname || item.fullName || item.full_name || item.title.toString() || item.text || item.value || item.alias || item._id;
+				var el = util.dom.el('option', {
+					attributes: {
+						value: item._id
+					}
+				}, str.toString());
+				if (item._id == obj) {
+					el.setAttribute('selected', true);
+				}
+				input.appendChild(el);
+			});
+		}).catch(err);
+		el.appendChild(input);
+		return {
+			wrapper: el,
+			input: input
+		}
+	};
+
+	fc.widgets.base64Image = function (obj, schema) {
+		var el = util.dom.el('div');
+		var input = util.dom.el('fc-input-image', {
+			value: obj
+		});
+		el.appendChild(input);
+		return {
+			wrapper: el,
+			input: input
+		}
+	};
+
+	fc.widgets.unixDateTime = function (obj, schema) {
+		if (window.moment) {
+			var el = util.dom.el('div');
+			var input = util.dom.el('input', {
+				attributes: {
+					type: 'datetime-local'
+				}
+			});
+			el.appendChild(input);
+			input.value = obj ? moment(obj).format("YYYY-MM-DDTHH:mm") : '';
+			input.convertValue = function (value) {
+				return value ? moment(value, "YYYY-MM-DDTHH:mm").toDate().valueOf() : 0;
+			};
+			return {
+				wrapper: el,
+				input: input
+			}
+		} else {
+			console.error('unixDateTime widget requires momentjs');
+		}
+	};
+</script>
