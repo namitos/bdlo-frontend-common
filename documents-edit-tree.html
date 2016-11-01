@@ -1,0 +1,252 @@
+<dom-module id="documents-edit-tree">
+	<template>
+		<style include="main-styles">
+			.branches {
+				@apply(--layout-horizontal);
+			}
+
+			.branch {
+				width: 200px;
+				max-height: 600px;
+				overflow-y: auto;
+				border-right: 1px solid var(--paper-blue-grey-50);
+				position: relative;
+			}
+
+			.branch::-webkit-scrollbar {
+				width: 4px;
+			}
+
+			.branch::-webkit-scrollbar-thumb {
+				background: var(--paper-blue-grey-200);
+			}
+
+			.branch .item {
+				clear: both;
+				height: 28px;
+			}
+
+			.branch .item .icons {
+				float: right;
+				z-index: 100;
+				position: relative;
+			}
+
+			.branch .item .icons iron-icon {
+				cursor: pointer;
+				width: 16px;
+				height: 16px;
+			}
+
+			.branch .item a {
+				height: 28px;
+				line-height: 28px;
+				font-size: 14px;
+				display: block;
+				padding: 0 8px;
+				position: relative;
+				color: var(--paper-grey-900);
+				cursor: pointer;
+			}
+
+			.branch .item a[selected],
+			.branch .item a[selected-breadcrumb] {
+				background: var(--paper-blue-100);
+				color: var(--paper-blue-grey-700);
+			}
+
+			.branch .item a:after {
+				box-sizing: border-box;
+				content: '';
+				display: block;
+				position: absolute;
+				top: 0;
+				right: 0;
+			}
+
+			.branch .item a:hover {
+				background: var(--paper-blue-grey-50);
+				color: var(--paper-blue-grey-700);
+			}
+
+			.branch .item a:hover:after {
+				border-left: 14px solid;
+				border-color: var(--paper-blue-grey-50);
+				border-top: 14px solid #fff;
+				border-bottom: 14px solid #fff;
+			}
+
+			.branch .item a[selected]:after,
+			.branch .item a[selected-breadcrumb]:after {
+				border-left: 14px solid;
+				border-color: var(--paper-blue-100);
+				border-top: 14px solid #fff;
+				border-bottom: 14px solid #fff;
+			}
+		</style>
+		<div id="wrapper">
+			<div class="branches">
+				<template is="dom-repeat" items="[[branches]]" as="branch" index-as="branchNum">
+					<div class="branch">
+						<div class="item">
+							<div class="icons">
+								<iron-icon icon="icons:add" on-click="addDialog"></iron-icon>
+							</div>
+						</div>
+						<template is="dom-repeat" items="[[branch]]">
+							<div class="item">
+								<span hidden>[[branchNum]]</span>
+								<div class="icons">
+									<iron-icon icon="icons:create" on-click="editDialog"></iron-icon>
+									<iron-icon icon="icons:clear" on-click="deleteDialog"></iron-icon>
+								</div>
+								<a on-click="loadBranchClick" tabindex="1">[[item.title]]</a>
+							</div>
+						</template>
+					</div>
+				</template>
+			</div>
+		</div>
+	</template>
+	<script>
+		Polymer({
+			is: "documents-edit-tree",
+
+			properties: {
+				branches: {
+					type: Array,
+					value: function () {
+						return [];
+					}
+				},
+				breadcrumb: {
+					type: Array,
+					value: function () {
+						return [];
+					}
+				}
+			},
+			attached: function () {
+				this._loadBranchesFn();
+			},
+			editDialog: function (e) {
+				var view = this;
+				util.modalForm('Редактирование', view.model.schema, e.model.item, function () {
+					e.model.item.save().then(function (item) {
+						view._loadBranchesFn(item._id);
+					}).catch(err);
+				});
+			},
+			addDialog: function (e) {
+				var parent = e.model.branch.parent ? e.model.branch.parent._id : '';
+				var view = this;
+				var item = new view.model({
+					parent: parent
+				});
+				util.modalForm('Добавление новой ветки', view.model.schema, item, function () {
+					item.save().then(function (item) {
+						view._loadBranchesFn(item._id);
+					}).catch(err);
+				});
+			},
+			deleteDialog: function (e) {
+				var view = this;
+				var item = e.model.item;
+				if (confirm('Вы уверены, что хотите удалить?')) {
+					view._loadBranchFn(item._id).then(function (branches) {
+						if (branches.length) {
+							util.notify('Ветка имеет дочерние элементы. Удалите сначала их.');
+						} else {
+							item.delete().then(function () {
+								util.notify('Ветка удалена');
+								view._loadBranchesFn(item.parent);
+							}).catch(err);
+						}
+					});
+				}
+			},
+			loadBranchClick: function (e) {
+				var view = this;
+				if (!view.loading) {
+					view.loading = true;
+					var parent = e.model.item._id;
+					view._loadBranchFn(parent).then(function (result) {
+						var branchesLength = view.branches.length;
+						var branchNum = e.model.branchNum + 1;
+						for (var i = 0; i < branchesLength - branchNum; ++i) {
+							view.pop('branches');
+						}
+						view.loading = false;
+						result.parent = e.model.item;
+						result.forEach(function (item) {
+							item.parentObj = e.model.item;
+						});
+
+						view.push('branches', result);
+						setTimeout(function () {
+							view.$.wrapper.scrollLeft = 2000;
+						}, 100);
+					}).catch(function (err) {
+						console.error(err);
+						view.loading = false;
+					});
+				}
+			},
+			_loadBranchFn: function (parent) {
+				var where;
+				if (parent) {
+					where = {
+						parent: parent
+					};
+				} else {
+					where = {
+						$or: [
+							{
+								parent: {
+									$exists: false
+								}
+							},
+							{
+								parent: ''
+							}
+						]
+					}
+				}
+				return this.model.read(where, {
+					sort: [['title', 1]]
+				});
+			},
+			_loadBranchesFn: function (parent) {
+				var view = this;
+				var breadcrumb;
+				return view.model.breadcrumb(parent).then(function (loaded) {
+					breadcrumb = loaded;
+					var parentIds = breadcrumb.map(function (item) {
+						return item.parent;
+					});
+					if (!parentIds.length) {
+						parentIds.push('');
+					}
+					return Promise.all(parentIds.map(function (parent) {
+						return view._loadBranchFn(parent);
+					}))
+				}).then(function (branches) {
+					branches.forEach(function (branches, i) {
+						if (i > 0) {
+							branches.parent = breadcrumb[i - 1];
+						}
+						branches.forEach(function (item) {//keep nesting level of each element
+							item.branchNum = i;
+						});
+					});
+					view.set('breadcrumb', breadcrumb);//need only for preloaded
+					view.set('branches', branches);
+					setTimeout(function () {
+						view.$.wrapper.scrollLeft = 2000;
+					}, 100);
+					return true;
+				}).catch(err);
+			}
+		});
+	</script>
+</dom-module>
