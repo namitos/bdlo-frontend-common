@@ -4,6 +4,7 @@
 			:host {
 				overflow: hidden;
 				min-height: 25px;
+				position: relative;
 			}
 
 			:host:after {
@@ -21,10 +22,24 @@
 			paper-progress {
 				width: 100%;
 			}
+
+			input[type=file] {
+				position: absolute;
+				top: 0;
+				left: 0;
+				height: 100px;
+				width: 100%;
+				cursor: pointer;
+			}
+
+			input[has-value] {
+				opacity: 0;
+			}
 		</style>
 		<template is="dom-if" if="[[loading]]">
 			<paper-progress max="[[total]]" value="[[loaded]]"></paper-progress>
 		</template>
+
 		<template is="dom-if" if="[[!loading]]">
 			<template is="dom-if" if="[[value.0]]">
 				<template is="dom-if" if="[[_isBase64File(value.0)]]">
@@ -34,13 +49,13 @@
 					<img src="/[[value.0]]">
 				</template>
 			</template>
-			<template is="dom-if" if="[[!value.0]]">
-				<input type="file" on-change="getImage">
-			</template>
 		</template>
+
 		<template is="dom-if" if="[[error]]">
 			<div>[[error]]</div>
 		</template>
+		<input type="file" on-change="getImage" has-value$="[[value]]">
+
 	</template>
 	<script>
 		Polymer({
@@ -64,34 +79,36 @@
 				}
 			},
 			getImage: function (e) {
-				this.loading = true;
-				this.error = '';
-				var view = this;
 				var input = e.target;
-				var reader = new FileReader();
-				reader.onload = function (a) {
-					view.set('value', [a.target.result]);
-					view.changeField();
-					view.loading = false;
-				};
-				reader.onprogress = function (a) {
-					view.total = a.total;
-					view.loaded = a.loaded;
-				};
-				reader.onerror = function (a) {
-					var code = a.target.error.code;
-					if (code == a.target.error.NOT_FOUND_ERR) {
-						view.error = "Файл не найден";
-					} else if (code == a.target.error.NOT_READABLE_ERR) {
-						view.error = "Ошибка чтения файла";
-					} else if (code == a.target.error.ABORT_ERR) {
+				if (input.files[0]) {
+					this.loading = true;
+					this.error = '';
+					var view = this;
+					var reader = new FileReader();
+					reader.onload = function (a) {
+						view.set('value', [a.target.result]);
+						view.changeField();
+						view.loading = false;
+					};
+					reader.onprogress = function (a) {
+						view.total = a.total;
+						view.loaded = a.loaded;
+					};
+					reader.onerror = function (a) {
+						var code = a.target.error.code;
+						if (code == a.target.error.NOT_FOUND_ERR) {
+							view.error = "Файл не найден";
+						} else if (code == a.target.error.NOT_READABLE_ERR) {
+							view.error = "Ошибка чтения файла";
+						} else if (code == a.target.error.ABORT_ERR) {
 
-					} else {
-						view.error = "Произошла ошибка";
-					}
-					view.loading = false;
-				};
-				reader.readAsDataURL(input.files[0]);
+						} else {
+							view.error = "Произошла ошибка";
+						}
+						view.loading = false;
+					};
+					reader.readAsDataURL(input.files[0]);
+				}
 			},
 			_isBase64File: function (str) {
 				if (!str) {
