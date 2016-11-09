@@ -6,7 +6,7 @@
 			}
 
 			.branch {
-				width: 200px;
+				width: 300px;
 				max-height: 600px;
 				overflow-y: auto;
 				border-right: 1px solid var(--paper-blue-grey-50);
@@ -23,7 +23,7 @@
 
 			.branch .item {
 				clear: both;
-				height: 28px;
+				min-height: 28px;
 			}
 
 			.branch .item .icons {
@@ -41,7 +41,7 @@
 			.branch .item a {
 				height: 28px;
 				line-height: 28px;
-				font-size: 14px;
+				font-size: 13px;
 				display: block;
 				padding: 0 8px;
 				position: relative;
@@ -68,21 +68,6 @@
 				background: var(--paper-blue-grey-50);
 				color: var(--paper-blue-grey-700);
 			}
-
-			.branch .item a:hover:after {
-				border-left: 14px solid;
-				border-color: var(--paper-blue-grey-50);
-				border-top: 14px solid #fff;
-				border-bottom: 14px solid #fff;
-			}
-
-			.branch .item a[selected]:after,
-			.branch .item a[selected-breadcrumb]:after {
-				border-left: 14px solid;
-				border-color: var(--paper-blue-100);
-				border-top: 14px solid #fff;
-				border-bottom: 14px solid #fff;
-			}
 		</style>
 		<div id="wrapper">
 			<div class="branches">
@@ -99,6 +84,10 @@
 								<div class="icons">
 									<iron-icon icon="icons:create" on-click="editDialog"></iron-icon>
 									<iron-icon icon="icons:clear" on-click="deleteDialog"></iron-icon>
+									<template is="dom-if" if="[[selectAnyBranch]]">
+										<span hidden>[[item]]</span>
+										<iron-icon icon="icons:done-all" on-click="selectBranch"></iron-icon>
+									</template>
 								</div>
 								<a on-click="loadBranchClick" tabindex="1">[[item.title]]</a>
 							</div>
@@ -128,6 +117,9 @@
 			},
 			attached: function () {
 				this._loadBranchesFn();
+			},
+			selectBranch: function (e) {
+				this.selectedValue && this.selectedValue(e.model.item);
 			},
 			editDialog: function (e) {
 				var view = this;
@@ -182,10 +174,14 @@
 							item.parentObj = e.model.item;
 						});
 
-						view.push('branches', result);
-						setTimeout(function () {
-							view.$.wrapper.scrollLeft = 2000;
-						}, 100);
+						if (result.length || view.editMode) {
+							view.push('branches', result);
+							setTimeout(function () {
+								view.$.wrapper.scrollLeft = 2000;
+							}, 100);
+						} else {
+							view.selectBranch(e);
+						}
 					}).catch(function (err) {
 						console.error(err);
 						view.loading = false;

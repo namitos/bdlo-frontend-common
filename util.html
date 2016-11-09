@@ -76,4 +76,62 @@
 			console.error('unixDateTime widget requires momentjs');
 		}
 	};
+
+	fc.widgets.treeSelect = function (obj, schema) {
+		var el = util.dom.el('div');
+		var input = util.dom.el('input');
+		el.appendChild(input);
+		input.convertValue = function () {
+			return this.treeValue;
+		};
+
+		var ModelClass = eval(schema.model);
+
+		if (obj && typeof obj == 'string') {
+			ModelClass.read({
+				_id: obj
+			}).then(function (items) {
+				input.value = items[0].title;
+			}).catch(err);
+		}
+
+		var showWin = function () {
+			var win = util.dom.el('ui-dialog', {
+				name: schema.label || schema.attributes && schema.attributes.placeholder
+			}, [
+				util.dom.el('documents-edit-tree', {
+					selectAnyBranch: schema.selectAnyBranch,
+					model: ModelClass,
+					value: obj,
+					selectedValue: function (treeValue) {
+						if (treeValue instanceof ModelClass) {
+							input.treeValue = treeValue._id;
+							if (treeValue.parentObj) {
+								input.value = [treeValue.parentObj.title, treeValue.title].join(' > ');
+							} else {
+								input.value = treeValue.title;
+							}
+						} else { //TODO тут может возвращаться не один объект и это надо предусмотреть
+							console.error('implement!', treeValue);
+						}
+						input.changeField();
+						win.close();
+					}
+				})
+			]);
+			win.classList.add('tree-select');
+			//el.appendChild(win);
+			document.body.appendChild(win);
+
+			win.open();
+		};
+		input.onclick = showWin;
+		input.oninput = showWin;
+
+		return {
+			wrapper: el,
+			input: input
+		}
+	};
+
 </script>
