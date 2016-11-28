@@ -17,6 +17,13 @@
 		},
 		_toBoolean: function (val) {
 			return !!val;
+		},
+		_json: function (obj) {
+			try {
+				return JSON.stringify(obj);
+			} catch (err) {
+				console.error(err);
+			}
 		}
 	}
 </script>
