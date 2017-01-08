@@ -1,6 +1,6 @@
 {
 	"name": "bdlo-frontend-common",
-	"version": "0.0.56",
+	"version": "0.0.57",
 	"private": false,
 	"dependencies": {
 		"lodash": "4.x",
