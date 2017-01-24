@@ -24,7 +24,7 @@
 				items = items.sort(schema.sort);
 			}
 			items.forEach(function (item) {
-				var str = item.name || item.shortname || item.shortName || item.short_name || item.fullname || item.fullName || item.full_name || item.title || item.text || item.value || item.alias || item._id;
+				var str = item.name || item.username || item.shortname || item.shortName || item.short_name || item.fullname || item.fullName || item.full_name || item.title || item.text || item.value || item.alias || item._id;
 				var el = util.dom.el('option', {
 					attributes: {
 						value: item._id
