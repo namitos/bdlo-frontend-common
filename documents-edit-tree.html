@@ -84,7 +84,9 @@
           <div class="branch">
             <div class="item">
               <div class="icons">
-                <iron-icon icon="icons:add" on-click="addDialog"></iron-icon>
+                <template is="dom-if" if="[[editMode]]">
+                  <iron-icon icon="icons:add" on-click="addDialog"></iron-icon>
+                </template>
               </div>
               <span>[[branch.parent.title]]</span>
             </div>
@@ -92,8 +94,14 @@
               <div class="item">
                 <span hidden>[[branchNum]]</span>
                 <div class="icons">
-                  <iron-icon icon="icons:create" on-click="editDialog"></iron-icon>
-                  <iron-icon icon="icons:clear" on-click="deleteDialog"></iron-icon>
+                  <template is="dom-if" if="[[editMode]]">
+                    <iron-icon icon="icons:create" on-click="editDialog" item="[[item]]"></iron-icon>
+                    <iron-icon icon="icons:clear" on-click="deleteDialog" item="[[item]]"></iron-icon>
+                  </template>
+                  <template is="dom-if" if="[[selectAnyBranch]]">
+                    <span hidden>[[item]]</span>
+                    <iron-icon icon="icons:done-all" on-click="selectBranch"></iron-icon>
+                  </template>
                 </div>
                 <a on-click="loadBranchClick" tabindex="1">[[item.title]]</a>
               </div>
@@ -106,89 +114,89 @@
   <script>
     Polymer({
       is: "documents-edit-tree",
-
       properties: {
         branches: {
           type: Array,
-          value: function () {
-            return [];
-          }
+          value: () => []
         },
         breadcrumb: {
           type: Array,
-          value: function () {
-            return [];
-          }
+          value: () => []
         }
       },
       attached: function () {
         this._loadBranchesFn();
       },
+      selectBranch: function (e) {
+        this.selectedValue && this.selectedValue(e.model.item);
+      },
       editDialog: function (e) {
-        var view = this;
-        util.modalForm('Редактирование', view.model.schema, e.model.item, function () {
-          e.model.item.save().then(function (item) {
-            view._loadBranchesFn(item._id);
+        util.modalForm('Редактирование', this.model.schema, e.model.item, () => {
+          e.model.item.save().then((item) => {
+            util.notify('Документ сохранён');
+            this._loadBranchesFn(item._id);
           }).catch(err);
         });
       },
       addDialog: function (e) {
-        var parent = e.model.branch.parent ? e.model.branch.parent._id : '';
-        var view = this;
-        var item = new view.model({
+        let parent = e.model.branch && e.model.branch.parent ? e.model.branch.parent._id : '';
+        let item = new this.model({
           parent: parent
         });
-        util.modalForm('Добавление новой ветки', view.model.schema, item, function () {
-          item.save().then(function (item) {
-            view._loadBranchesFn(item._id);
+        util.modalForm('Добавление новой ветки', this.model.schema, item, () => {
+          item.save().then((item) => {
+            util.notify('Документ добавлен');
+            this._loadBranchesFn(item._id);
           }).catch(err);
         });
       },
       deleteDialog: function (e) {
-        var view = this;
-        var item = e.model.item;
+        let item = e.model.item;
         if (confirm('Вы уверены, что хотите удалить?')) {
-          view._loadBranchFn(item._id).then(function (branches) {
+          this._loadBranchFn(item._id).then((branches) => {
             if (branches.length) {
               util.notify('Ветка имеет дочерние элементы. Удалите сначала их.');
             } else {
-              item.delete().then(function () {
+              item.delete().then(() => {
                 util.notify('Ветка удалена');
-                view._loadBranchesFn(item.parent);
+                this._loadBranchesFn(item.parent);
               }).catch(err);
             }
-          });
+          })
         }
       },
       loadBranchClick: function (e) {
-        var view = this;
-        if (!view.loading) {
-          view.loading = true;
-          var parent = e.model.item._id;
-          view._loadBranchFn(parent).then(function (result) {
-            var branchesLength = view.branches.length;
-            var branchNum = e.model.branchNum + 1;
-            for (var i = 0; i < branchesLength - branchNum; ++i) {
-              view.pop('branches');
+        if (!this.loading) {
+          this.loading = true;
+          let parent = e.model.item._id;
+          this._loadBranchFn(parent).then((result) => {
+            let branchesLength = this.branches.length;
+            let branchNum = e.model.branchNum + 1;
+            for (let i = 0; i < branchesLength - branchNum; ++i) {
+              this.pop('branches');
             }
-            view.loading = false;
+            this.loading = false;
             result.parent = e.model.item;
-            result.forEach(function (item) {
+            result.forEach((item) => {
               item.parentObj = e.model.item;
             });
 
-            view.push('branches', result);
-            setTimeout(function () {
-              view.$.wrapper.scrollLeft = 2000;
-            }, 100);
-          }).catch(function (err) {
+            if (result.length || this.editMode) {
+              this.push('branches', result);
+              setTimeout(() => {
+                this.$.wrapper.scrollLeft = 2000;
+              }, 100);
+            } else {
+              this.selectBranch(e);
+            }
+          }).catch((err) => {
             console.error(err);
-            view.loading = false;
+            this.loading = false;
           });
         }
       },
       _loadBranchFn: function (parent) {
-        var where;
+        let where;
         if (parent) {
           where = {
             parent: parent
@@ -212,32 +220,27 @@
         });
       },
       _loadBranchesFn: function (parent) {
-        var view = this;
-        var breadcrumb;
-        return view.model.breadcrumb(parent).then(function (loaded) {
+        let breadcrumb;
+        return this.model.breadcrumb(parent).then((loaded) => {
           breadcrumb = loaded;
-          var parentIds = breadcrumb.map(function (item) {
-            return item.parent;
-          });
+          let parentIds = breadcrumb.map((item) => item.parent);
           if (!parentIds.length) {
             parentIds.push('');
           }
-          return Promise.all(parentIds.map(function (parent) {
-            return view._loadBranchFn(parent);
-          }))
-        }).then(function (branches) {
-          branches.forEach(function (branches, i) {
+          return Promise.all(parentIds.map((parent) => this._loadBranchFn(parent)))
+        }).then((branches) => {
+          branches.forEach((branches, i) => {
             if (i > 0) {
               branches.parent = breadcrumb[i - 1];
             }
-            branches.forEach(function (item) {//keep nesting level of each element
+            branches.forEach((item) => {//keep nesting level of each element
               item.branchNum = i;
             });
           });
-          view.set('breadcrumb', breadcrumb);//need only for preloaded
-          view.set('branches', branches);
-          setTimeout(function () {
-            view.$.wrapper.scrollLeft = 2000;
+          this.set('breadcrumb', breadcrumb);//need only for preloaded
+          this.set('branches', branches);
+          setTimeout(() => {
+            this.$.wrapper.scrollLeft = 2000;
           }, 100);
           return true;
         }).catch(err);
