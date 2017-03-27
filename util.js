@@ -83,7 +83,7 @@
       }, 100);
     },
     init: function () {
-      window.socket = io();
+      window.socket = io(window.socketUrl || null);
       return Promise.all([
         new Promise(function (resolve, reject) {
           socket.emit('data:schemas', {}, function (result) {
