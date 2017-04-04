@@ -85,7 +85,7 @@
             <div class="item">
               <div class="icons">
                 <template is="dom-if" if="[[editMode]]">
-                  <iron-icon icon="icons:add" on-click="addDialog"></iron-icon>
+                  <iron-icon icon="icons:add" on-click="addDialog" branch="[[branch]]"></iron-icon>
                 </template>
               </div>
               <span>[[branch.parent.title]]</span>
