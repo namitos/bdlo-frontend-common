@@ -1,150 +1,154 @@
 <script>
-	EditorBehavior = {
-		addDialog: function () {
-			var view = this;
-			var item = new this.model(this.newItemFn instanceof Function ? this.newItemFn() : {});
-			util.modalForm('Добавление документа', this.model.schema, item, function () {
-				item.save().then(function (item) {
-					view.push('items', item);
-					util.notify('Документ добавлен');
-				}).catch(err);
-			});
-		},
-		/**
-		 * if table header exists (and document loaded partially) this dialog loads full document before show form
-		 * @param e
-		 */
-		editDialog: function (e) {
-			var view = this;
-			var item = e.model.item;
-			(view.header && view.header.length ? view.model.read({
-				_id: item._id
-			}).then(function (loaded) {
-				return loaded[0]
-			}) : Promise.resolve(item)).then(function (item) {
-				util.modalForm('Редактирование документа', view.model.schema, item, function () {
-					item.save().then(function (item) {
-						util.notify('Документ сохранён');
-					}).catch(err);
-				});
-			}).catch(err);
-		},
-		deleteDialog: function (e) {
-			var view = this;
-			var item = e.model.item;
-			if (view.model.schema.safeDelete) {
-				item.delete().then(function () {
-					util.notify('Документ архивирован');
-					view.set(['items', view.items.indexOf(item), 'deleted'], true);
-				}).catch(err);
-			} else if (confirm('Удалить документ? Это действие нельзя будет отменить.')) {
-				item.delete().then(function () {
-					util.notify('Документ удалён');
-					view.splice('items', view.items.indexOf(item), 1);
-				}).catch(err);
-			}
-		},
-		undoDialog: function (e) {
-			var view = this;
-			var item = e.model.item;
-			item.deleted = false;
-			item.save().then(function () {
-				util.notify('Документ восстановлен');
-				view.set(['items', view.items.indexOf(item), 'deleted'], false);
-			}).catch(err)
-		}
-	};
+  EditorBehavior = {
+    addDialog: function () {
+      let view = this;
+      let item = new this.model(this.newItemFn instanceof Function ? this.newItemFn() : {});
+      util.modalForm('Добавление документа', this.model.schema, item, function () {
+        item.save().then(function (item) {
+          view.push('items', item);
+          util.notify('Документ добавлен');
+        }).catch(err);
+      });
+    },
+    /**
+     * if table header exists (and document loaded partially) this dialog loads full document before show form
+     * @param e
+     */
+    editDialog: function (e) {
+      let view = this;
+      let item = e.model.item;
+      (view.header && view.header.length ? view.model.read({
+        _id: item._id
+      }).then(function (loaded) {
+        return loaded[0]
+      }) : Promise.resolve(item)).then(function (item) {
+        util.modalForm('Редактирование документа', view.model.schema, item, function () {
+          item.save().then(function (item) {
+            util.notify('Документ сохранён');
+          }).catch(err);
+        });
+      }).catch(err);
+    },
+    deleteDialog: function (e) {
+      let view = this;
+      let item = e.model.item;
+      if (view.model.schema.safeDelete) {
+        item.delete().then(function () {
+          util.notify('Документ архивирован');
+          view.set(['items', view.items.indexOf(item), 'deleted'], true);
+        }).catch(err);
+      } else if (confirm('Удалить документ? Это действие нельзя будет отменить.')) {
+        item.delete().then(function () {
+          util.notify('Документ удалён');
+          view.splice('items', view.items.indexOf(item), 1);
+        }).catch(err);
+      }
+    },
+    undoDialog: function (e) {
+      let view = this;
+      let item = e.model.item;
+      item.deleted = false;
+      item.save().then(function () {
+        util.notify('Документ восстановлен');
+        view.set(['items', view.items.indexOf(item), 'deleted'], false);
+      }).catch(err)
+    }
+  };
 
-	EditTableBehaviorImpl = {
-		properties: {
-			header: {
-				type: Array,
-				value: []
-			},
-			filters: {
-				type: Array,
-				value: []
-			},
-			page: {
-				type: Number,
-				value: 0
-			},
-			limit: {
-				type: Number,
-				value: 30
-			},
-			form: {
-				type: Object,
-				value: {}
-			}
-		},
-		observers: [
-			'_search(page, form.*)'
-		],
-		attached: function () {
-			this.model = typeof this.model == 'string' ? eval(this.model) : this.model;
-			if (this.model.schema.table) {
-				if (!this.header.length && this.model.schema.table.header) {
-					this.header = this.model.schema.table.header;
-				}
-				if (!this.filters.length && this.model.schema.table.filters) {
-					this.filters = this.model.schema.table.filters;
-				}
-			}
-		},
-		filterChange: function (e) {
-			var name = e.target.name;
-			var schema = this.model.schema.getField(name);
-			var value = e.target.value;
-			if (value) {
-				if (schema.type == 'string') {
-					value = {
-						$regex: value,
-						$options: 'i'
-					};
-				} else if (schema.type == 'number' || schema.type == 'integer') {
-					value = parseFloat(value);
-				}
-				this.set(['form', name].join('.'), value);
-			} else {
-				this.set(['form', name].join('.'));
-			}
-		},
-		_filterName: function (name) {
-			return this.model.schema.getField(name).label;
-		},
-		_search: function () {
-			var view = this;
-			this.async(function () {
-				var form = _.cloneDeep(view.form);
-				var fields = {};
-				if (this.header.length) {
-					this.header.forEach(function (field) {
-						fields[field] = true;
-					});
-				}
-				view.model.read(form, {
-					skip: view.page * view.limit,
-					limit: view.limit,
-					fields: fields
-				}).then(function (items) {
-					view.items = items;
-				}).catch(err)
-			});
-		},
-		_header: function (field) {
-			return this.model.schema.getField(field).label;
-		},
-		_field: function (item, field) {
-			return item.get(field);
-		},
-		_fieldTitle: function (item) {
-			return item.name || item.shortname || item.shortName || item.short_name || item.fullname || item.fullName || item.full_name || item.title || item.text || item.value || item._id;
-		}
-	};
+  EditTableBehaviorImpl = {
+    properties: {
+      header: {
+        type: Array,
+        value: []
+      },
+      filters: {
+        type: Array,
+        value: []
+      },
+      page: {
+        type: Number,
+        value: 0
+      },
+      limit: {
+        type: Number,
+        value: 30
+      },
+      form: {
+        type: Object,
+        value: {}
+      }
+    },
+    observers: [
+      '_search(page, form.*)'
+    ],
+    attached: function () {
+      this.model = typeof this.model === 'string' ? eval(this.model) : this.model;
+      if (this.model.schema.table) {
+        if (!this.header.length && this.model.schema.table.header) {
+          this.header = this.model.schema.table.header;
+        }
+        if (!this.filters.length && this.model.schema.table.filters) {
+          this.filters = this.model.schema.table.filters;
+        }
+      }
+    },
+    filterChange: function (e) {
+      let name = e.target.name;
+      let schema = this.model.schema.getField(name);
+      let value = e.target.value;
+      if (value) {
+        if (schema.type === 'string') {
+          value = {
+            $regex: value,
+            $options: 'i'
+          };
+        } else if (schema.type === 'number' || schema.type === 'integer') {
+          value = parseFloat(value);
+        }
+        this.form[name] = value;
+        //this.set(['form', name].join('.'), value);
+      } else {
+        delete this.form[name];
+        //this.set(['form', name].join('.'));
+      }
+      this._search();
+    },
+    _filterName: function (name) {
+      return this.model.schema.getField(name).label;
+    },
+    _search: function () {
+      let view = this;
+      this.async(function () {
+        let form = _.cloneDeep(view.form);
+        let fields = {};
+        if (this.header.length) {
+          this.header.forEach(function (field) {
+            fields[field] = true;
+          });
+        }
+        view.model.read(form, {
+          skip: view.page * view.limit,
+          limit: view.limit,
+          fields: fields
+        }, view.connections).then(function (items) {
+          console.log(items);
+          view.items = items;
+        }).catch(err)
+      });
+    },
+    _header: function (field) {
+      return this.model.schema.getField(field).label;
+    },
+    _field: function (item, field) {
+      return item.get(field);
+    },
+    _fieldTitle: function (item) {
+      return item.name || item.shortname || item.shortName || item.short_name || item.fullname || item.fullName || item.full_name || item.title || item.text || item.value || item._id;
+    }
+  };
 
-	EditTableBehavior = [
-		EditorBehavior,
-		EditTableBehaviorImpl
-	];
+  EditTableBehavior = [
+    EditorBehavior,
+    EditTableBehaviorImpl
+  ];
 </script>
