@@ -3,7 +3,7 @@
 <link rel="import" href="ui-dialog.html">
 <link rel="import" href="fc-input-image.html">
 
-<script src="../lodash/dist/lodash.min.js"></script>
+<script src="vendor/lodash.custom.min.js"></script>
 <script src="../moment/min/moment.min.js"></script>
 <script src="../moment/locale/ru.js"></script>
 <script src="../revalidator/lib/revalidator.js"></script>
@@ -12,126 +12,126 @@
 
 <script src="util.js"></script>
 <script>
-	fc.widgets.selectCollection = function (obj, schema) {
-		var el = util.dom.el('div');
-		var input = util.dom.el('select', {}, util.dom.el('option'));
-		var StructureClass = eval(schema.model);
-		StructureClass.read().then(function (items) {
-			if (schema.filter instanceof Function) {
-				items = items.filter(schema.filter);
-			}
-			if (schema.sort instanceof Function) {
-				items = items.sort(schema.sort);
-			}
-			items.forEach(function (item) {
-				var str = item.name || item.alias || item.username || item.shortname || item.shortName || item.short_name || item.fullname || item.fullName || item.full_name || item.title || item.text || item.value || item._id;
-				var el = util.dom.el('option', {
-					attributes: {
-						value: item._id
-					}
-				}, str.toString());
-				if (item._id == obj) {
-					el.setAttribute('selected', true);
-				}
-				input.appendChild(el);
-			});
-		}).catch(err);
-		el.appendChild(input);
-		return {
-			wrapper: el,
-			input: input
-		}
-	};
+  fc.widgets.selectCollection = function (obj, schema) {
+    var el = util.dom.el('div');
+    var input = util.dom.el('select', {}, util.dom.el('option'));
+    var StructureClass = eval(schema.model);
+    StructureClass.read().then(function (items) {
+      if (schema.filter instanceof Function) {
+        items = items.filter(schema.filter);
+      }
+      if (schema.sort instanceof Function) {
+        items = items.sort(schema.sort);
+      }
+      items.forEach(function (item) {
+        var str = item.name || item.alias || item.username || item.shortname || item.shortName || item.short_name ||
+          item.fullname || item.fullName || item.full_name || item.title || item.text || item.value || item._id;
+        var el = util.dom.el('option', {
+          attributes: {
+            value: item._id
+          }
+        }, str.toString());
+        if (item._id == obj) {
+          el.setAttribute('selected', true);
+        }
+        input.appendChild(el);
+      });
+    }).catch(err);
+    el.appendChild(input);
+    return {
+      wrapper: el,
+      input: input
+    }
+  };
 
-	fc.widgets.base64Image = function (obj, schema) {
-		var el = util.dom.el('div');
-		var input = util.dom.el('fc-input-image', {
-			value: obj
-		});
-		el.appendChild(input);
-		return {
-			wrapper: el,
-			input: input
-		}
-	};
+  fc.widgets.base64Image = function (obj, schema) {
+    var el = util.dom.el('div');
+    var input = util.dom.el('fc-input-image', {
+      value: obj
+    });
+    el.appendChild(input);
+    return {
+      wrapper: el,
+      input: input
+    }
+  };
 
-	fc.widgets.unixDateTime = function (obj, schema) {
-		if (window.moment) {
-			var el = util.dom.el('div');
-			var input = util.dom.el('input', {
-				attributes: {
-					type: 'datetime-local'
-				}
-			});
-			el.appendChild(input);
-			input.value = obj ? moment(obj).format("YYYY-MM-DDTHH:mm") : '';
-			input.convertValue = function (value) {
-				return value ? moment(value, "YYYY-MM-DDTHH:mm").toDate().valueOf() : 0;
-			};
-			return {
-				wrapper: el,
-				input: input
-			}
-		} else {
-			console.error('unixDateTime widget requires momentjs');
-		}
-	};
+  fc.widgets.unixDateTime = function (obj, schema) {
+    if (window.moment) {
+      var el = util.dom.el('div');
+      var input = util.dom.el('input', {
+        attributes: {
+          type: 'datetime-local'
+        }
+      });
+      el.appendChild(input);
+      input.value = obj ? moment(obj).format("YYYY-MM-DDTHH:mm") : '';
+      input.convertValue = function (value) {
+        return value ? moment(value, "YYYY-MM-DDTHH:mm").toDate().valueOf() : 0;
+      };
+      return {
+        wrapper: el,
+        input: input
+      }
+    } else {
+      console.error('unixDateTime widget requires momentjs');
+    }
+  };
 
-	fc.widgets.treeSelect = function (obj, schema) {
-		var el = util.dom.el('div');
-		var input = util.dom.el('input');
-		el.appendChild(input);
-		input.convertValue = function () {
-			return this.treeValue;
-		};
+  fc.widgets.treeSelect = function (obj, schema) {
+    var el = util.dom.el('div');
+    var input = util.dom.el('input');
+    el.appendChild(input);
+    input.convertValue = function () {
+      return this.treeValue;
+    };
 
-		var ModelClass = eval(schema.model);
+    var ModelClass = eval(schema.model);
 
-		if (obj && typeof obj == 'string') {
-			ModelClass.read({
-				_id: obj
-			}).then(function (items) {
-				input.value = items[0].title;
-			}).catch(err);
-		}
+    if (obj && typeof obj == 'string') {
+      ModelClass.read({
+        _id: obj
+      }).then(function (items) {
+        input.value = items[0].title;
+      }).catch(err);
+    }
 
-		var showWin = function () {
-			var win = util.dom.el('ui-dialog', {
-				name: schema.label || schema.attributes && schema.attributes.placeholder
-			}, [
-				util.dom.el('documents-edit-tree', {
-					selectAnyBranch: schema.selectAnyBranch,
-					model: ModelClass,
-					value: obj,
-					selectedValue: function (treeValue) {
-						if (treeValue instanceof ModelClass) {
-							input.treeValue = treeValue._id;
-							if (treeValue.parentObj) {
-								input.value = [treeValue.parentObj.title, treeValue.title].join(' > ');
-							} else {
-								input.value = treeValue.title;
-							}
-						} else { //TODO тут может возвращаться не один объект и это надо предусмотреть
-							console.error('implement!', treeValue);
-						}
-						input.changeField();
-						win.close();
-					}
-				})
-			]);
-			win.classList.add('tree-select');
-			//el.appendChild(win);
-			document.body.appendChild(win);
+    var showWin = function () {
+      var win = util.dom.el('ui-dialog', {
+        name: schema.label || schema.attributes && schema.attributes.placeholder
+      }, [
+        util.dom.el('documents-edit-tree', {
+          selectAnyBranch: schema.selectAnyBranch,
+          model: ModelClass,
+          value: obj,
+          selectedValue: function (treeValue) {
+            if (treeValue instanceof ModelClass) {
+              input.treeValue = treeValue._id;
+              if (treeValue.parentObj) {
+                input.value = [treeValue.parentObj.title, treeValue.title].join(' > ');
+              } else {
+                input.value = treeValue.title;
+              }
+            } else { //TODO тут может возвращаться не один объект и это надо предусмотреть
+              console.error('implement!', treeValue);
+            }
+            input.changeField();
+            win.close();
+          }
+        })
+      ]);
+      win.classList.add('tree-select');
+      //el.appendChild(win);
+      document.body.appendChild(win);
 
-			win.open();
-		};
-		input.onclick = showWin;
-		input.oninput = showWin;
+      win.open();
+    };
+    input.onclick = showWin;
+    input.oninput = showWin;
 
-		return {
-			wrapper: el,
-			input: input
-		}
-	};
-
+    return {
+      wrapper: el,
+      input: input
+    }
+  };
 </script>
