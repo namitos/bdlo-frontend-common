@@ -1,126 +1,128 @@
+<link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../paper-progress/paper-progress.html">
-<link rel="import" href="util-behavior.html">
+
+<link rel="import" href="./util-behavior.html">
 
 <dom-module id="fc-input-image">
-	<template>
-		<style>
-			:host {
-				overflow: hidden;
-				min-height: 25px;
-				position: relative;
-			}
+  <template>
+    <style>
+      :host {
+        overflow: hidden;
+        min-height: 25px;
+        position: relative;
+      }
 
-			:host:after {
-				display: block;
-				clear: both;
-				content: '';
-			}
+      :host:after {
+        display: block;
+        clear: both;
+        content: '';
+      }
 
-			img {
-				width: auto;
-				height: 100px;
-				float: left;
-			}
+      img {
+        width: auto;
+        height: 100px;
+        float: left;
+      }
 
-			paper-progress {
-				width: 100%;
-			}
+      paper-progress {
+        width: 100%;
+      }
 
-			input[type=file] {
-				position: absolute;
-				top: 0;
-				left: 0;
-				height: 100px;
-				width: 100%;
-				cursor: pointer;
-			}
+      input[type=file] {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100px;
+        width: 100%;
+        cursor: pointer;
+      }
 
-			input[has-value] {
-				opacity: 0;
-			}
-		</style>
-		<template is="dom-if" if="[[loading]]">
-			<paper-progress max="[[total]]" value="[[loaded]]"></paper-progress>
-		</template>
+      input[has-value] {
+        opacity: 0;
+      }
+    </style>
+    <template is="dom-if" if="[[loading]]">
+      <paper-progress max="[[total]]" value="[[loaded]]"></paper-progress>
+    </template>
 
-		<template is="dom-if" if="[[!loading]]">
-			<template is="dom-if" if="[[value.0]]">
-				<template is="dom-if" if="[[_isBase64File(value.0)]]">
-					<img src="[[value.0]]">
-				</template>
-				<template is="dom-if" if="[[!_isBase64File(value.0)]]">
-					<img src="/[[value.0]]">
-				</template>
-			</template>
-		</template>
+    <template is="dom-if" if="[[!loading]]">
+      <template is="dom-if" if="[[value.0]]">
+        <template is="dom-if" if="[[_isBase64File(value.0)]]">
+          <img src="[[value.0]]">
+        </template>
+        <template is="dom-if" if="[[!_isBase64File(value.0)]]">
+          <img src="/[[value.0]]">
+        </template>
+      </template>
+    </template>
 
-		<template is="dom-if" if="[[error]]">
-			<div>[[error]]</div>
-		</template>
-		<input type="file" on-change="getImage" has-value$="[[_toBoolean(value)]]">
+    <template is="dom-if" if="[[error]]">
+      <div>[[error]]</div>
+    </template>
+    <input type="file" on-change="getImage" has-value$="[[_toBoolean(value)]]">
 
-	</template>
-	<script>
-		Polymer({
-			is: 'fc-input-image',
-			properties: {
-				loading: {
-					type: Boolean,
-					value: false
-				},
-				value: {
-					type: Array,
-					value: function () {
-						return []
-					}
-				},
-				loaded: {
-					type: Number
-				},
-				total: {
-					type: Number
-				}
-			},
-			behaviors: [UtilBehavior],
-			getImage: function (e) {
-				var input = e.target;
-				if (input.files[0]) {
-					this.loading = true;
-					this.error = '';
-					var view = this;
-					var reader = new FileReader();
-					reader.onload = function (a) {
-						view.set('value', [a.target.result]);
-						view.changeField();
-						view.loading = false;
-					};
-					reader.onprogress = function (a) {
-						view.total = a.total;
-						view.loaded = a.loaded;
-					};
-					reader.onerror = function (a) {
-						var code = a.target.error.code;
-						if (code == a.target.error.NOT_FOUND_ERR) {
-							view.error = "Файл не найден";
-						} else if (code == a.target.error.NOT_READABLE_ERR) {
-							view.error = "Ошибка чтения файла";
-						} else if (code == a.target.error.ABORT_ERR) {
+  </template>
+  <script>
+    Polymer({
+      is: 'fc-input-image',
+      properties: {
+        loading: {
+          type: Boolean,
+          value: false
+        },
+        value: {
+          type: Array,
+          value: function () {
+            return []
+          }
+        },
+        loaded: {
+          type: Number
+        },
+        total: {
+          type: Number
+        }
+      },
+      behaviors: [UtilBehavior],
+      getImage: function (e) {
+        var input = e.target;
+        if (input.files[0]) {
+          this.loading = true;
+          this.error = '';
+          var view = this;
+          var reader = new FileReader();
+          reader.onload = function (a) {
+            view.set('value', [a.target.result]);
+            view.changeField();
+            view.loading = false;
+          };
+          reader.onprogress = function (a) {
+            view.total = a.total;
+            view.loaded = a.loaded;
+          };
+          reader.onerror = function (a) {
+            var code = a.target.error.code;
+            if (code == a.target.error.NOT_FOUND_ERR) {
+              view.error = "Файл не найден";
+            } else if (code == a.target.error.NOT_READABLE_ERR) {
+              view.error = "Ошибка чтения файла";
+            } else if (code == a.target.error.ABORT_ERR) {
 
-						} else {
-							view.error = "Произошла ошибка";
-						}
-						view.loading = false;
-					};
-					reader.readAsDataURL(input.files[0]);
-				}
-			},
-			_isBase64File: function (str) {
-				if (!str) {
-					return false;
-				}
-				var a = str.substr(0, 5);
-				return a.indexOf('data:') != -1;
-			}
-		})
-	</script>
+            } else {
+              view.error = "Произошла ошибка";
+            }
+            view.loading = false;
+          };
+          reader.readAsDataURL(input.files[0]);
+        }
+      },
+      _isBase64File: function (str) {
+        if (!str) {
+          return false;
+        }
+        var a = str.substr(0, 5);
+        return a.indexOf('data:') != -1;
+      }
+    })
+  </script>
 </dom-module>

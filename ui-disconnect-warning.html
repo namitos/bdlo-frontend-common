@@ -1,71 +1,75 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-icon/iron-icon.html">
+<link rel="import" href="../iron-icons/device-icons.html">
+
 <dom-module id="ui-disconnect-warning">
-	<style>
-		@keyframes disconnect-warning {
-			0% {
-				color: #fff;
-			}
-			50% {
-				color: #000;
-			}
-			100% {
-				color: #fff;
-			}
-		}
+  <style>
+    @keyframes disconnect-warning {
+      0% {
+        color: #fff;
+      }
+      50% {
+        color: #000;
+      }
+      100% {
+        color: #fff;
+      }
+    }
 
-		#disconnect-warning {
-			position: fixed;
-			bottom: 0;
-			left: 0;
-			background: #fff;
-			border-radius: 0 16px 0 0;
-			padding: 8px 8px 4px 4px;
-			background: var(--paper-red-600);
-			z-index: 2000;
-		}
+    #disconnect-warning {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      background: #fff;
+      border-radius: 0 16px 0 0;
+      padding: 8px 8px 4px 4px;
+      background: var(--paper-red-600);
+      z-index: 2000;
+    }
 
-		#disconnect-warning iron-icon {
-			animation: disconnect-warning 1s infinite;
-		}
-	</style>
-	<template>
-		<div hidden$="[[!disconnectWarning]]" id="disconnect-warning">
-			<iron-icon icon="device:signal-cellular-connected-no-internet-0-bar"></iron-icon>
-		</div>
-	</template>
-	<script>
-		Polymer({
-			is: 'ui-disconnect-warning',
-			properties: {
-				reload: {
-					type: Number,
-					value: 0
-				},
-				disconnectWarning: {
-					type: Boolean,
-					value: false,
-					notify: true
-				}
-			},
-			attached: function () {
-				var view = this;
-				setTimeout(function () {
-					view.disconnectWarning = window.disconnectWarning = !socket.connected;
-					socket.on('connect', function () {
-						view.disconnectWarning = window.disconnectWarning = false;
-						if (view.reload) {
-							clearTimeout(view.reloadTimer);
-						}
-					});
-					socket.on('disconnect', function () {
-						view.disconnectWarning = window.disconnectWarning = true;
-						if (view.reload) {
-							view.reloadTimer = setTimeout(function () {
-								window.location.reload();
-							}, view.reload);
-						}
-					});
-				}, 2000);
-			}
-		})
-	</script>
+    #disconnect-warning iron-icon {
+      animation: disconnect-warning 1s infinite;
+    }
+  </style>
+  <template>
+    <div hidden$="[[!disconnectWarning]]" id="disconnect-warning">
+      <iron-icon icon="device:signal-cellular-connected-no-internet-0-bar"></iron-icon>
+    </div>
+  </template>
+  <script>
+    Polymer({
+      is: 'ui-disconnect-warning',
+      properties: {
+        reload: {
+          type: Number,
+          value: 0
+        },
+        disconnectWarning: {
+          type: Boolean,
+          value: false,
+          notify: true
+        }
+      },
+      attached: function () {
+        var view = this;
+        setTimeout(function () {
+          view.disconnectWarning = window.disconnectWarning = !socket.connected;
+          socket.on('connect', function () {
+            view.disconnectWarning = window.disconnectWarning = false;
+            if (view.reload) {
+              clearTimeout(view.reloadTimer);
+            }
+          });
+          socket.on('disconnect', function () {
+            view.disconnectWarning = window.disconnectWarning = true;
+            if (view.reload) {
+              view.reloadTimer = setTimeout(function () {
+                window.location.reload();
+              }, view.reload);
+            }
+          });
+        }, 2000);
+      }
+    })
+  </script>
 </dom-module>

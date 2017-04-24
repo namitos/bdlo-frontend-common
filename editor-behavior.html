@@ -1,4 +1,7 @@
 <script>
+  /**
+   * @polymerBehavior
+   */
   EditorBehavior = {
     addDialog: function () {
       let view = this;
@@ -55,6 +58,9 @@
     }
   };
 
+  /**
+   * @polymerBehavior EditTableBehavior
+   */
   EditTableBehaviorImpl = {
     properties: {
       header: {
@@ -147,6 +153,9 @@
     }
   };
 
+  /**
+   * @polymerBehavior
+   */
   EditTableBehavior = [
     EditorBehavior,
     EditTableBehaviorImpl
