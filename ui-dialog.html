@@ -1,3 +1,4 @@
+<link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../iron-icon/iron-icon.html">
 <link rel="import" href="../iron-icons/iron-icons.html">
 <link rel="import" href="../paper-dialog/paper-dialog.html">
@@ -5,83 +6,83 @@
 <link rel="import" href="../app-layout/app-toolbar/app-toolbar.html">
 
 <dom-module id='ui-dialog'>
-	<style>
-		paper-dialog {
-			width: 640px;
-			top: 0 !important;
-		}
+  <style>
+    paper-dialog {
+      width: 640px;
+      top: 0 !important;
+    }
 
-		app-toolbar,
-		paper-dialog-scrollable {
-			margin: 0 !important;
-		}
+    app-toolbar,
+    paper-dialog-scrollable {
+      margin: 0 !important;
+    }
 
-		app-toolbar {
-			@apply(--ui-dialog-app-toolbar);
-		}
+    app-toolbar {
+      @apply(--ui-dialog-app-toolbar);
+    }
 
-		paper-dialog-scrollable {
-			--paper-dialog-scrollable: {
-				padding: 16px;
-			}
-		}
+    paper-dialog-scrollable {
+      --paper-dialog-scrollable: {
+        padding: 16px;
+      }
+    }
 
-		.icon {
-			margin-right: 8px;
-		}
+    .icon {
+      margin-right: 8px;
+    }
 
-		[dialog-dismiss] {
-			cursor: pointer;
-		}
+    [dialog-dismiss] {
+      cursor: pointer;
+    }
 
-		@media (max-width: 640px) {
-			paper-dialog {
-				width: 100%;
-				margin: 0;
-			}
-		}
-	</style>
-	<template>
-		<paper-dialog id="dialog" with-backdrop no-cancel-on-outside-click>
-			<app-toolbar>
-				<template is="dom-if" if="[[icon]]">
-					<iron-icon icon="[[icon]]" class="icon"></iron-icon>
-				</template>
-				<div main-title>[[name]]</div>
-				<iron-icon icon="close" dialog-dismiss></iron-icon>
-			</app-toolbar>
-			<paper-dialog-scrollable>
-				<content></content>
-			</paper-dialog-scrollable>
-		</paper-dialog>
-	</template>
-	<script>
-		Polymer({
-			is: 'ui-dialog',
-			properties: {
-				icon: {
-					type: String
-				},
-				removeAfterHide: {
-					type: Boolean,
-					value: true
-				}
-			},
-			close: function () {
-				this.$.dialog.close();
-			},
-			open: function () {
-				this.$.dialog.open();
-			},
-			attached: function () {
-				var view = this;
-				this.$.dialog.addEventListener('iron-overlay-closed', function (e) {
-					if (view.removeAfterHide && view.parentNode) {
-						view.parentNode.removeChild(view);
-						//this.remove();
-					}
-				});
-			}
-		});
-	</script>
+    @media (max-width: 640px) {
+      paper-dialog {
+        width: 100%;
+        margin: 0;
+      }
+    }
+  </style>
+  <template>
+    <paper-dialog id="dialog" with-backdrop no-cancel-on-outside-click>
+      <app-toolbar>
+        <template is="dom-if" if="[[icon]]">
+          <iron-icon icon="[[icon]]" class="icon"></iron-icon>
+        </template>
+        <div main-title>[[name]]</div>
+        <iron-icon icon="close" dialog-dismiss></iron-icon>
+      </app-toolbar>
+      <paper-dialog-scrollable>
+        <content></content>
+      </paper-dialog-scrollable>
+    </paper-dialog>
+  </template>
+  <script>
+    Polymer({
+      is: 'ui-dialog',
+      properties: {
+        icon: {
+          type: String
+        },
+        removeAfterHide: {
+          type: Boolean,
+          value: true
+        }
+      },
+      close: function () {
+        this.$.dialog.close();
+      },
+      open: function () {
+        this.$.dialog.open();
+      },
+      attached: function () {
+        var view = this;
+        this.$.dialog.addEventListener('iron-overlay-closed', function (e) {
+          if (view.removeAfterHide && view.parentNode) {
+            view.parentNode.removeChild(view);
+            //this.remove();
+          }
+        });
+      }
+    });
+  </script>
 </dom-module>

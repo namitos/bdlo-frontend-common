@@ -1,44 +1,48 @@
-<dom-module id="ui-pager">
-	<style>
-		:host {
-			display: inline-block;
-			border-radius: 20px;
-			background: rgba(0, 0, 0, .05);
-			min-height: 40px;
-			vertical-align: top;
-			margin: 0 16px 16px 0;
-		}
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
 
-		span {
-			font-size: 14px;
-			margin: 0 4px;
-			display: inline-block;
-			width: 50px;
-			text-align: center;
-		}
-	</style>
-	<template>
-		<paper-icon-button icon="chevron-left" on-click="pageLeft"></paper-icon-button>
-		<span>[[page]]</span>
-		<paper-icon-button icon="chevron-right" on-click="pageRight"></paper-icon-button>
-	</template>
-	<script>
-		Polymer({
-			is: 'ui-pager',
-			properties: {
-				page: {
-					type: Number,
-					notify: true
-				}
-			},
-			pageLeft: function () {
-				if (this.page > 0) {
-					this.page--;
-				}
-			},
-			pageRight: function () {
-				this.page++;
-			}
-		});
-	</script>
+<dom-module id="ui-pager">
+  <style>
+    :host {
+      display: inline-block;
+      border-radius: 20px;
+      background: rgba(0, 0, 0, .05);
+      min-height: 40px;
+      vertical-align: top;
+      margin: 0 16px 16px 0;
+    }
+
+    span {
+      font-size: 14px;
+      margin: 0 4px;
+      display: inline-block;
+      width: 50px;
+      text-align: center;
+    }
+  </style>
+  <template>
+    <paper-icon-button icon="chevron-left" on-click="pageLeft"></paper-icon-button>
+    <span>[[page]]</span>
+    <paper-icon-button icon="chevron-right" on-click="pageRight"></paper-icon-button>
+  </template>
+  <script>
+    Polymer({
+      is: 'ui-pager',
+      properties: {
+        page: {
+          type: Number,
+          notify: true
+        }
+      },
+      pageLeft: function () {
+        if (this.page > 0) {
+          this.page--;
+        }
+      },
+      pageRight: function () {
+        this.page++;
+      }
+    });
+  </script>
 </dom-module>
