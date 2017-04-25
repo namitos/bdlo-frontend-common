@@ -1,11 +1,11 @@
 {
   "name": "bdlo-frontend-common",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": false,
   "dependencies": {
     "moment": "2.x",
     "revalidator": "flatiron/revalidator",
-    "namitos-fc": "namitos/fc",
+    "fc": "namitos/fc",
     "Model-client": "namitos/Model-client",
     "socket.io-client": "socketio/socket.io-client",
     "polymer": "1.x",
