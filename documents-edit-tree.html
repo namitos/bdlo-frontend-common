@@ -219,9 +219,7 @@
             ]
           }
         }
-        return this.model.read(where, {
-          sort: [['title', 1]]
-        });
+        return this.model.read(where, this.model.schema.properties.sortorder ? {} : {sort: [['title', 1]]});
       },
       _loadBranchesFn: function (parent) {
         let breadcrumb;
