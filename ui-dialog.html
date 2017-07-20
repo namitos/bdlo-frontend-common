@@ -49,7 +49,7 @@
           <iron-icon icon="[[icon]]" class="icon"></iron-icon>
         </template>
         <div main-title>[[name]]</div>
-        <iron-icon icon="close" dialog-dismiss></iron-icon>
+        <iron-icon icon="close" dialog-dismiss on-click="close"></iron-icon>
       </app-toolbar>
       <paper-dialog-scrollable>
         <content></content>
@@ -68,20 +68,26 @@
           value: true
         }
       },
-      close: function () {
+      close: function() {
         this.$.dialog.close();
+        document.body.removeAttribute('dialog-open');
       },
-      open: function () {
+      open: function() {
         this.$.dialog.open();
+        document.body.setAttribute('dialog-open', true);
       },
-      attached: function () {
+      attached: function() {
         var view = this;
-        this.$.dialog.addEventListener('iron-overlay-closed', function (e) {
+        this.$.dialog.addEventListener('iron-overlay-closed', function(e) {
+          document.body.removeAttribute('dialog-open');
           if (view.removeAfterHide && view.parentNode) {
             view.parentNode.removeChild(view);
             //this.remove();
           }
         });
+      },
+      detached: function() {
+        document.body.removeAttribute('dialog-open');
       }
     });
   </script>
