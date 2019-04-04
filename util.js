@@ -11,7 +11,7 @@
             if (rbracket.test(prefix)) {
               add(prefix, obj[i]);
             } else {
-              buildParams(prefix + "[" + ( typeof obj[i] === "object" ? i : "" ) + "]", obj[i], add);
+              buildParams(prefix + "[" + (typeof obj[i] === "object" ? i : "") + "]", obj[i], add);
             }
           }
         } else if (typeof obj == "object") {
@@ -30,7 +30,7 @@
       r20 = /%20/g;
       add = function (key, value) {
         // If value is a function, invoke it and return its value
-        value = ( typeof value == 'function' ) ? value() : ( value == null ? "" : value );
+        value = (typeof value == 'function') ? value() : (value == null ? "" : value);
         s[s.length] = encodeURIComponent(key) + "=" + encodeURIComponent(value);
       };
       if (a instanceof Array) {
@@ -203,12 +203,14 @@
                 schema = new Schema(schema);
               }
               var errors = [];
+              console.log('validation.errors', validation.errors)
               validation.errors.forEach(function (error) {
                 try {
                   let label = schema.getField(error.property, 'label');
                   let txt = validationToText(error) + '\n';
+                  console.log('label', label);
                   if (label) {
-                    txt = label + ' ' + txt;
+                    txt = (label.label ? label.label : label) + ' ' + txt;
                   }
                   errors.push(txt);
                 } catch (err) {
